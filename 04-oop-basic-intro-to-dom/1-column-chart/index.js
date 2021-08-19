@@ -1,18 +1,26 @@
 export default class ColumnChart {
-    constructor(data, label ,value) {
-        this.data = data
-        this.label = label
-        this.value = value
+    constructor(data) {
+        this.data = data;
+        this.dataSet = data.data.length > 1 ? data.data : null;
+        this.label = data.label ? data.label : null;
+        this.value = data.value ? data.value : null;
+        this.link = data.link ? data.link : null;
         this.render();
         this.initEventListeners();
       }
     
       render() {
-        console.log(this.data.value)
+     
+
+        
 
 
         const element = document.createElement('div');
         element.classList.add('column-chart');
+        if(this.dataSet === null) {
+          element.classList.add('column-chart_loading');
+          element.setAttribute("style", "--chart-height: 50");
+        }
         this.element = element;
 
 
@@ -21,6 +29,16 @@ export default class ColumnChart {
         titleChart.innerText = this.data.label;
         element.append(titleChart);
         this.titleChart = titleChart;
+        
+        const linkChart = document.createElement('a');
+        if(this.link) {
+          linkChart.classList.add('column-chart__link');
+          linkChart.setAttribute('href', `${this.link}`);
+          linkChart.innerText = "View all";
+          titleChart.append(linkChart);
+          this.linkChart = linkChart;
+        }
+
 
 
         const containerChart = document.createElement('div');
@@ -30,7 +48,8 @@ export default class ColumnChart {
 
         const headerChart = document.createElement('div');
         headerChart.classList.add('column-chart__header');
-        headerChart.innerText = this.data.value;
+        headerChart.setAttribute("data-element", "header");
+        headerChart.innerText = this.value;
         containerChart.append(headerChart)
         this.headerChart = headerChart;
 
@@ -39,15 +58,16 @@ export default class ColumnChart {
         containerChart.append(chartsChart)
         this.chartsChart = chartsChart;
 
-        for(let item of this.data.data) {
+        const remakeDataForChart = this.dataSet ? this.dataSet.map( (item) => {
+          const max = 50;
+          return Math.round((item * max) / 100)
+        }) : []
+        for(let item of remakeDataForChart) {
             const oneChart = document.createElement('div');
-            // oneChart.setAttribute('data-tooltip', item)
-            oneChart.setAttribute('style', `--value : ${item}`)
-            // oneChart.innerText = item
-            // oneChart.innerText = item
-            chartsChart.append(oneChart)
-            // this.oneChart = oneChart;
-        }
+            oneChart.setAttribute('data-tooltip', `${item}%`);
+            oneChart.setAttribute('style', `--value : ${item}`);
+            chartsChart.append(oneChart);
+        };
 
       }
     
@@ -64,7 +84,6 @@ export default class ColumnChart {
         // NOTE: удаляем обработчики событий, если они есть
       }
 }
-
 
 
 
