@@ -1,23 +1,23 @@
 export default class ColumnChart {
-    constructor(data) {
-      if(data) {
-        this.chartHeight = 50;
+    constructor({
+      data = [],
+      label = '',
+      link = '',
+      value = 0,
+      formatHeading = data => data,
+    } = {}) {
         this.data = data;
-        this.dataForCharts = data.data;
-        this.render();
-        this.initEventListeners();
-      } else {
-        this.isUndefined =  true
+        this.label = label;
+        this.link = link;
+        this.value = value;
+        this.formatHeading = formatHeading;
         this.chartHeight = 50;
-        this.data = {};
-        this.dataForCharts = [];
         this.render();
         this.initEventListeners();
-      }   
     }
     render() {
       const element = document.createElement('div');
-      if(this.isUndefined) {
+      if(Object.keys(this.data).length == 0) {
         element.classList.add('column-chart');
         element.classList.add('column-chart_loading');
         element.setAttribute("style", `--chart-height: ${this.chartHeight}`);
@@ -30,12 +30,10 @@ export default class ColumnChart {
 
       const titleChart = document.createElement('div');
       titleChart.classList.add('column-chart__title');
-      this.label = Object.keys(this.data).includes('label') ? this.data.label : '';
       titleChart.innerHTML = this.label;
       element.append(titleChart);
       this.titleChart = titleChart;
-      
-      this.link = Object.keys(this.data).includes('link') ? this.data.link : '';
+
       if(this.link) {
         const linkChart = document.createElement('a');
         linkChart.classList.add('column-chart__link');
@@ -50,7 +48,6 @@ export default class ColumnChart {
       element.append(containerChart);
       this.containerChart = containerChart;
 
-      this.value = Object.keys(this.data).includes('value') ? this.data.value : 0;
       const headerChart = document.createElement('div');
       headerChart.classList.add('column-chart__header');
       headerChart.setAttribute("data-element", "header");
@@ -64,8 +61,8 @@ export default class ColumnChart {
       containerChart.append(chartsChart)
       this.chartsChart = chartsChart;
 
-      const remakeDataForChart = this.dataForCharts ? this.dataForCharts.map( (item, index, array) => {
-        const maxValue = Math.max(...this.dataForCharts);
+      const remakeDataForChart = this.data ? this.data.map( (item, index, array) => {
+        const maxValue = Math.max(...this.data);
         const scale = 50 / maxValue;
         return ({
           value : Math.floor(item * scale),
@@ -81,13 +78,11 @@ export default class ColumnChart {
     }
 
     formatHeading (value) {
-      return this.data.hasOwnProperty('formatHeading')
-        ? `${this.data.formatHeading(value)}`
-        : value;
+      return this.formatHeading(value)
     }
 
     update (data) {
-      this.dataForCharts = data
+      this.data = data
     }
   
     initEventListeners () {
