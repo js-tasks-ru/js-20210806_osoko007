@@ -10,13 +10,22 @@ export default class NotificationMessage {
         this.destroy();
     } 
 
-    render() {
+    static notification;
+
+    render() { 
+      if(NotificationMessage.notification) {
+        NotificationMessage.notification.remove()
+      } 
+      NotificationMessage.notification = this;
       const element = document.createElement('div');
       element.innerHTML = this.template;
       this.element = element.firstElementChild;
     }
 
     show(element) {
+      if(NotificationMessage.notification) {
+        NotificationMessage.notification.remove()
+      } 
       if(element) {
         this.element = element;
         document.body.append(this.element)
@@ -39,15 +48,15 @@ export default class NotificationMessage {
         `
     }
 
-    destroy() {
-        const notificationList = document.querySelectorAll('.notification')
-        for(let item of notificationList) {
-            item.remove()
-        }
-        setTimeout(()=>{
-            this.element.remove()
-        },this.duration)
+    remove () {
+      if(this.element) {
+        this.element.remove();
+      }
     }
-
     
+    destroy() { 
+      setTimeout(()=>{
+          this.remove()
+      },this.duration)
+    }
 }
