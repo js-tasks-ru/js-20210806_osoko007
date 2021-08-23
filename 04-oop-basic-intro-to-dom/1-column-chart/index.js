@@ -15,53 +15,42 @@ export default class ColumnChart {
         this.render();
         this.initEventListeners();
     }
+
     render() {
       const element = document.createElement('div');
-      if(Object.keys(this.data).length == 0) {
-        element.classList.add('column-chart');
-        element.classList.add('column-chart_loading');
-        element.setAttribute("style", `--chart-height: ${this.chartHeight}`);
-      } else {
-        element.classList.add('column-chart');
-        element.setAttribute("style", `--chart-height: ${this.chartHeight}`);
+      element.innerHTML = this.template;
+      this.element = element.firstElementChild
+      if(Object.keys(this.data).length > 0) {
+        this.element.classList.remove('column-chart_loading')
       }
-      this.element = element;
+    }
 
+    get template() {
+      return `
+        <div class="column-chart column-chart_loading" style="--chart-height:${this.chartHeight}">
+          <div class="column-chart__title">
+            Total ${this.label}
+            ${this.getLink()}
+          </div>
+          <div class="column-chart__container">
+            <div data-element="header" class="column-chart__header">
+              ${this.formatHeading(this.value)}
+            </div>
+            <div data-element="body" class="column-chart__chart">
+              ${this.getChartColumn(this.data)}
+            </div>
+          </div>
+        </div>
+      `
+    }
 
-      const titleChart = document.createElement('div');
-      titleChart.classList.add('column-chart__title');
-      titleChart.innerHTML = this.label;
-      element.append(titleChart);
-      this.titleChart = titleChart;
+    getLink () {
+      return this.link ?
+        `<a class="column-chart__link" href="${this.link}">Viev all</a>` : '';
+    }
 
-      if(this.link) {
-        const linkChart = document.createElement('a');
-        linkChart.classList.add('column-chart__link');
-        linkChart.setAttribute('href', `${this.link}`);
-        linkChart.innerHTML = "View all";
-        titleChart.append(linkChart);
-        this.linkChart = linkChart;
-      }
-      
-      const containerChart = document.createElement('div');
-      containerChart.classList.add('column-chart__container');
-      element.append(containerChart);
-      this.containerChart = containerChart;
-
-      const headerChart = document.createElement('div');
-      headerChart.classList.add('column-chart__header');
-      headerChart.setAttribute("data-element", "header");
-      headerChart.innerHTML = this.formatHeading(this.value);
-      containerChart.append(headerChart)
-      this.headerChart = headerChart;
-
-      const chartsChart = document.createElement('div');
-      chartsChart.classList.add('column-chart__chart');
-      chartsChart.setAttribute("data-element", "body");
-      containerChart.append(chartsChart)
-      this.chartsChart = chartsChart;
-
-      const remakeDataForChart = this.data ? this.data.map( (item, index, array) => {
+    getChartColumn (data) {
+      const remakeDataForChart = data ? data.map( (item, index, array) => {
         const maxValue = Math.max(...this.data);
         const scale = 50 / maxValue;
         return ({
@@ -69,12 +58,7 @@ export default class ColumnChart {
           percent : (item / maxValue * 100).toFixed(0) + '%',
         })
       }) : []
-      for(let item of remakeDataForChart) {
-          const oneChart = document.createElement('div');
-          oneChart.setAttribute('data-tooltip',`${item.percent}`);
-          oneChart.setAttribute('style', `--value:${item.value}`);
-          chartsChart.append(oneChart);
-      };
+      return remakeDataForChart.map(item => `<div style="--value:${item.value}" data-tooltip="${item.percent}"></div>`).join('')
     }
 
     formatHeading (value) {
@@ -86,7 +70,7 @@ export default class ColumnChart {
     }
   
     initEventListeners () {
-      // NOTE: в данном методе добавляем обработчики событий, если они есть
+
     }
   
     remove () {
@@ -95,6 +79,5 @@ export default class ColumnChart {
   
     destroy() {
       this.remove();
-      // NOTE: удаляем обработчики событий, если они есть
     }
 }
