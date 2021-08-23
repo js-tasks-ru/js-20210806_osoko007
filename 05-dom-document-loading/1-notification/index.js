@@ -41,7 +41,6 @@ export default class NotificationMessage {
 
     destroy() {
         const notificationList = document.querySelectorAll('.notification')
-        console.log(notificationList)
         for(let item of notificationList) {
             item.remove()
         }
