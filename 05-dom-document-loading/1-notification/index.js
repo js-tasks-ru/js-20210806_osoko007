@@ -32,6 +32,9 @@ export default class NotificationMessage {
       } else {
         document.body.append(this.element)
       }
+      setTimeout(() => {
+        this.remove();
+      }, this.duration);
     }
 
     get template() {
@@ -55,8 +58,6 @@ export default class NotificationMessage {
     }
     
     destroy() { 
-      setTimeout(()=>{
-          this.remove()
-      },this.duration)
+      this.remove()
     }
 }
