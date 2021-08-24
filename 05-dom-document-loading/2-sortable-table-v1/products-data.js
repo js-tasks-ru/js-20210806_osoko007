@@ -3,7 +3,7 @@ export default [
     "id": "soska-(pustyshka)-nuk-10729357",
     "title": "Соска (пустышка) NUK 10729357",
     "description": "кольцо; Материал: силикон; Форма: ортодонтическая; Возраст: 0m+; Тип: пустышка",
-    "quantity": 20,
+    "quantity": 20, 
     "subcategory": {
       "id": "kormlenie-i-gigiena",
       "title": "Кормление и гигиена",
