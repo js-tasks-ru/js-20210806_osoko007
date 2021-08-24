@@ -3,13 +3,13 @@ export default class SortableTable {
     this.headerConfig = headerConfig;
     this.data = data;
     this.render();
-    this.getSubElements();
   }
 
   render() { 
     const element = document.createElement('div');
     element.innerHTML = this.template;
     this.element = element.firstElementChild;
+    this.getSubElements();
   }
 
   get template() {
@@ -19,7 +19,7 @@ export default class SortableTable {
             ${this.getHeader()}
           </div>
           <div class="sortable-table__body" data-element="body">
-            ${this.getBody()}
+            ${this.getBody(this.data)}
           </div>
         </div>
       `
@@ -40,8 +40,8 @@ export default class SortableTable {
     }).join('')
   }
 
-  getBody() {
-    return this.data.map((item)=> {
+  getBody(data) { 
+    return data.map((item)=> {
       return `
           <a href="#" class="sortable-table__row">
             <div class="sortable-table__cell">
@@ -58,8 +58,8 @@ export default class SortableTable {
   }
 
   sort(arr, param = "asc") {
-    const sortData = this.data.slice();
-    // console.log(this.data)
+    // const sortData = this.data.slice();
+    console.log(this.data)
     // console.log(sortData)
     
     function sortStr(a, b) {
@@ -67,7 +67,7 @@ export default class SortableTable {
         sensitivity: "variant",
       });     
     }
-    this.data = sortData.sort((a, b) => {
+    return this.data.sort((a, b) => {
       if(typeof a[arr] === "string") {
         if (param === "asc") {
           return sortStr(a[arr], b[arr]);
@@ -84,7 +84,10 @@ export default class SortableTable {
   }
   
   getSubElements() {
-    const root = document.getElementById('root')
+    console.log(this.element)
+    // console.log(this.element.querySelectorAll('sortable-table__cell'))
+    console.log(this.data)
+    this.element.lastElementChild.innerHTML = this.getBody(this.data)
   }
 
   remove() {
