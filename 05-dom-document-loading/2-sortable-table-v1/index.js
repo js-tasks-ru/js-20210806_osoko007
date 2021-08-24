@@ -3,12 +3,13 @@ export default class SortableTable {
     this.headerConfig = headerConfig;
     this.data = data;
     this.render();
+    this.getSubElements();
   }
 
   render() { 
     const element = document.createElement('div');
     element.innerHTML = this.template;
-    this.element = element;
+    this.element = element.firstElementChild;
   }
 
   get template() {
@@ -82,6 +83,9 @@ export default class SortableTable {
     // this.render()
   }
   
+  getSubElements() {
+    const root = document.getElementById('root')
+  }
 
   remove() {
     if(this.element) {
