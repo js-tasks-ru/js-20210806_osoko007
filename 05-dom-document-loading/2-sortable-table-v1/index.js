@@ -1,7 +1,7 @@
 export default class SortableTable {
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
-    this.data = data;
+    this.data = Array.isArray(data) ? data : data.data;
     this.render();
   }
 
@@ -9,7 +9,6 @@ export default class SortableTable {
     const element = document.createElement('div');
     element.innerHTML = this.template;
     this.element = element.firstElementChild;
-    this.getSubElements();
   }
 
   get template() {
@@ -45,7 +44,7 @@ export default class SortableTable {
       return `
           <a href="#" class="sortable-table__row">
             <div class="sortable-table__cell">
-              <img class="sortable-table-image" alt="Image" src="${item.images[0].url}">
+              <img class="sortable-table-image" alt="Image" src="${item.images ? item.images[0].url : "#"}">
             </div>
             <div class="sortable-table__cell">${item.title}</div>
 
@@ -58,16 +57,14 @@ export default class SortableTable {
   }
 
   sort(arr, param = "asc") {
-    // const sortData = this.data.slice();
-    console.log(this.data)
-    // console.log(sortData)
-    
+    const sortData = this.data.slice();
+   
     function sortStr(a, b) {
       return a.localeCompare(b, ["ang-u-kf-upper", "ru-u-kf-upper"], {
         sensitivity: "variant",
       });     
     }
-    return this.data.sort((a, b) => {
+    sortData.sort((a, b) => {
       if(typeof a[arr] === "string") {
         if (param === "asc") {
           return sortStr(a[arr], b[arr]);
@@ -79,15 +76,15 @@ export default class SortableTable {
         }
         return b[arr] - a[arr]
     });
-    // this.destroy()
-    // this.render()
+    this.getSubElements(sortData)
   }
+
   
-  getSubElements() {
-    console.log(this.element)
-    // console.log(this.element.querySelectorAll('sortable-table__cell'))
-    console.log(this.data)
-    this.element.lastElementChild.innerHTML = this.getBody(this.data)
+  
+  getSubElements(data) {
+    const body = this.element.querySelector('.sortable-table__body')
+    this.subElements = body
+    this.subElements.innerHTML = this.getBody(data)
   }
 
   remove() {
