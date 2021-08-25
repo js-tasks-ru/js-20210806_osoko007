@@ -90,8 +90,8 @@ export default class SortableTable {
 
     
     this.subElements.body.innerHTML = this.getBody(data)
-    // console.log(this.subElements.body.firstElementChild.children[1].textContent)
-    // console.log(this.subElements.body.lastElementChild.children[1].textContent)
+    console.log(this.subElements.body.firstElementChild.children[1].textContent)
+    console.log(this.subElements.body.lastElementChild.children[1].textContent)
   }
 
   remove() {
