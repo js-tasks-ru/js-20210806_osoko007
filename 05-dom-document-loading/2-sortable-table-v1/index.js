@@ -56,7 +56,7 @@ export default class SortableTable {
     }).join('')
   }
 
-  sort(arr, param = "asc") {
+  sort(field, param = "asc") {
     const sortData = this.data.slice();
    
     function sortStr(a, b) {
@@ -65,26 +65,33 @@ export default class SortableTable {
       });     
     }
     sortData.sort((a, b) => {
-      if(typeof a[arr] === "string") {
+      if(typeof a[field] === "string") {
         if (param === "asc") {
-          return sortStr(a[arr], b[arr]);
+          return sortStr(a[field], b[field]);
         }
-        return sortStr(b[arr], a[arr]);
-      } else if(typeof a[arr] === "number")
+        return sortStr(b[field], a[field]);
+      } else if(typeof a[field] === "number")
         if (param === "asc") {
-          return a[arr] - b[arr]
+          return a[field] - b[field]
         }
-        return b[arr] - a[arr]
+        return b[field] - a[field]
     });
     this.getSubElements(sortData)
   }
+
 
   
   
   getSubElements(data) {
     const body = this.element.querySelector('.sortable-table__body')
-    this.subElements = body
-    this.subElements.innerHTML = this.getBody(data)
+    this.subElements = {
+      body : body
+    }
+
+    
+    this.subElements.body.innerHTML = this.getBody(data)
+    // console.log(this.subElements.body.firstElementChild.children[1].textContent)
+    // console.log(this.subElements.body.lastElementChild.children[1].textContent)
   }
 
   remove() {
