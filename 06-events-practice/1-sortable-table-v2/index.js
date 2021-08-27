@@ -7,6 +7,7 @@ export default class SortableTable {
     this.data = data;
     this.sorted = sorted;
     this.render();
+    this.loadingSort();
   }
 
   render() { 
@@ -14,6 +15,11 @@ export default class SortableTable {
     element.innerHTML = this.getTemplate()
     this.element = element.firstElementChild;
     this.subElements = this.getSubElements(this.element);
+  }
+
+  loadingSort () {
+    const { id, order } = this.sorted;
+    this.sort(id, order)
   }
 
 
@@ -78,6 +84,7 @@ export default class SortableTable {
         sensitivity: "variant",
       });     
     }
+
     sortData.sort((a, b) => {
       if(typeof a[field] === "string") {
         if (param === "asc") {
@@ -95,8 +102,6 @@ export default class SortableTable {
   }
 
 
-  
-  
   getSubElements (element) {
     const result = {}
     const elements = element.querySelectorAll('[data-element]')
