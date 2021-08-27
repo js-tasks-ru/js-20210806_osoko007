@@ -1,41 +1,46 @@
 class Tooltip {
+    static tooltip = null;
     constructor () {
-        this.linkTooltip = this.linkTooltip.bind(this)
-    }
-    static tooltip;
+        if(!Tooltip.tooltip) {
+            Tooltip.tooltip = this
+        } else {
+            return Tooltip.tooltip
+        }
+        this.pointerMove = this.pointerMove.bind(this)
+        this.remove = this.remove.bind(this)
+    }   
 
-    initialize () {       
-        Tooltip.tooltip = this;
+    initialize () {      
         const element = document.createElement('div');
         element.className = 'tooltip';
         this.element = element;
         this.createEventListeners()
     }
 
-    linkTooltip (e) {
-        if(Tooltip.tooltip) {
-            Tooltip.tooltip.remove()
-        }
-        let tooltipHtml = e.target.dataset.tooltip;
+    pointerMove (e) {
+        const tooltipHtml = e.target.dataset.tooltip;
         if (!tooltipHtml) return;
 
-        this.element.innerHTML = tooltipHtml
-        document.body.append(this.element);
+        e.target.addEventListener('pointermove', (e)=> {
+            this.element.innerHTML = e.target.dataset.tooltip
+            document.body.append(this.element);
 
-        let left = e.clientX
-        let top = e.clientY
+            const left = e.clientX
+            const top = e.clientY
 
-        this.element.style.left = left + 'px';
-        this.element.style.top = top + 'px';
+            this.element.style.left = left + 'px';
+            this.element.style.top = top + 'px';
+        })
     }
 
+
     createEventListeners () {
-        document.addEventListener('pointerover', this.linkTooltip)
+        document.addEventListener('pointerover', this.pointerMove, {bubbles: true})
         document.addEventListener('pointerout', this.remove)
     }
     
     destroyEventListeners () {
-        document.removeEventListener('pointerover', this.linkTooltip)
+        document.removeEventListener('pointerover', this.pointerMove)
         document.removeEventListener('pointerout', this.remove)
     }
 
@@ -47,11 +52,7 @@ class Tooltip {
       
     destroy() { 
         this.remove()
-        this.destroyEventListeners()
     }
-
-
-
 }
 
 export default Tooltip;
