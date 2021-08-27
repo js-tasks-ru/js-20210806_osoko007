@@ -6,36 +6,39 @@ class Tooltip {
         } else {
             return Tooltip.tooltip
         }
-        this.pointerMove = this.pointerMove.bind(this)
-        this.remove = this.remove.bind(this)
     }   
 
     initialize () {      
-        const element = document.createElement('div');
-        element.className = 'tooltip';
-        this.element = element;
         this.createEventListeners()
     }
 
-    pointerMove (e) {
+    render (text) {
+        const element = document.createElement('div');
+        element.innerHTML = text;
+        element.classList.add('tooltip')
+        this.element = element;
+        document.body.append(this.element)
+    }
+
+    pointerMove = (e) => {
         const tooltipHtml = e.target.dataset.tooltip;
         if (!tooltipHtml) return;
 
-        e.target.addEventListener('pointermove', (e)=> {
-            this.element.innerHTML = e.target.dataset.tooltip
-            document.body.append(this.element);
+        this.render(tooltipHtml)
 
+        e.target.addEventListener('pointermove', (e)=> {
             const left = e.clientX
             const top = e.clientY
+            const shiftCursor = 20
 
-            this.element.style.left = left + 'px';
-            this.element.style.top = top + 'px';
+            this.element.style.left = shiftCursor + left + 'px';
+            this.element.style.top = shiftCursor + top + 'px';
         })
     }
 
 
     createEventListeners () {
-        document.addEventListener('pointerover', this.pointerMove, {bubbles: true})
+        document.addEventListener('pointerover', this.pointerMove)
         document.addEventListener('pointerout', this.remove)
     }
     
@@ -44,7 +47,7 @@ class Tooltip {
         document.removeEventListener('pointerout', this.remove)
     }
 
-    remove () {
+    remove = () => {
         if(this.element) {
             this.element.remove();
         }
@@ -52,6 +55,7 @@ class Tooltip {
       
     destroy() { 
         this.remove()
+        this.destroyEventListeners()
     }
 }
 
