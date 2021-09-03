@@ -47,16 +47,12 @@ export default class SortableTable {
     }
   } = {}) {
     this.headerConfig = headerConfig;
+    this.data = data;
     this.url = url;
     this.isSortLocally = isSortLocally;
-    this.data = data;
     this.sorted = sorted;
 
     this.loadData()
-      .then(()=> {
-        this.update();
-      })
-
     this.render();
   }
 
@@ -186,11 +182,7 @@ export default class SortableTable {
     return result;
   }
 
-  async loadData (url) {
-    this.data = await fetchJson(BACKEND_URL + '/' + this.url)
-  }
-
-  async update () {
+  async loadData () {
     const { id, order } = this.sorted;
     await this.sortOnServer(id, order)
     this.subElements.body.innerHTML = this.getBody(this.data)
