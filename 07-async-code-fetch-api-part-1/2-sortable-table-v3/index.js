@@ -21,7 +21,8 @@ export default class SortableTable {
     if (column) {
       const { id, order } = column.dataset;
       const newOrder = toggleOrder(order);
-      const sortedData = this.sortOnClient(id, newOrder);
+      const sortedData = this.isSortLocally ? this.sortOnClient(id, newOrder) : this.sortOnServer(id, newOrder);
+
       const arrow = column.querySelector('.sortable-table__sort-arrow');
 
       column.dataset.order = newOrder;
@@ -30,7 +31,8 @@ export default class SortableTable {
         column.append(this.subElements.arrow);
       }
 
-      this.subElements.body.innerHTML = this.getBody(sortedData);
+      sortedData
+        .then((data)=>this.subElements.body.innerHTML = this.getBody(data));
     }
   };
 
@@ -38,6 +40,7 @@ export default class SortableTable {
   constructor(headerConfig, {
     data = [],
     url = '',
+    isSortLocally = false,
     sorted = {
       id: headerConfig.find(item => item.sortable).id,
       order: 'asc'
@@ -45,19 +48,23 @@ export default class SortableTable {
   } = {}) {
     this.headerConfig = headerConfig;
     this.url = url;
+    this.isSortLocally = isSortLocally;
     this.data = data;
     this.sorted = sorted;
+
+    this.loadData()
+      .then(()=> {
+        this.update();
+      })
+
     this.render();
   }
 
-  render() { 
-    this.loadData();
-    console.log(this.data)
-    const { id, order } = this.sorted;
-    const sortedData = this.sortOnClient(id, order)
+  async render () { 
+    // const { id, order } = this.sorted;
     const wrapper  = document.createElement('div');
-
-    wrapper.innerHTML = this.getTemplate(sortedData)
+    // const sortedData = this.sortOnClient(id, order)
+    wrapper.innerHTML = this.getTemplate(this.data)
     const element = wrapper.firstElementChild;
 
     this.element = element;
@@ -130,8 +137,7 @@ export default class SortableTable {
     }).join('')
   }
 
-  sortOnClient (field, param = "asc") {
-    console.log(this.data)
+  async sortOnClient (field, param = "asc") {
     const sortData = this.data.slice()
    
     function sortStr(a, b) {
@@ -155,6 +161,18 @@ export default class SortableTable {
     return sortData
   }
 
+  sortOnServer = async (id, order) => {
+    let url = new URL(this.url, BACKEND_URL);
+    url.searchParams.set('_embed', 'subcategory.category');
+    url.searchParams.set('_sort', id);
+    url.searchParams.set('_order', order);
+    url.searchParams.set('_start', 0);
+    url.searchParams.set('_end', 30);
+    const newDate = await fetchJson(url)
+    this.data = await newDate;
+    return this.data
+  }
+
 
   getSubElements (element) {
     const result = {}
@@ -172,6 +190,12 @@ export default class SortableTable {
     this.data = await fetchJson(BACKEND_URL + '/' + this.url)
   }
 
+  async update () {
+    const { id, order } = this.sorted;
+    await this.sortOnServer(id, order)
+    this.subElements.body.innerHTML = this.getBody(this.data)
+  }
+
   remove () {
     if(this.element) {
       this.element.remove();
@@ -183,7 +207,5 @@ export default class SortableTable {
     this.subElements = {};
   }
 
-  sortOnServer (id, order) {
-
-  }
+  
 }
