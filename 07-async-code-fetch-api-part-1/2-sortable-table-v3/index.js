@@ -21,7 +21,7 @@ export default class SortableTable {
     if (column) {
       const { id, order } = column.dataset;
       const newOrder = toggleOrder(order);
-      const sortedData = this.isSortLocally ? this.sortOnClient(id, newOrder) : this.sortOnServer(id, newOrder);
+      const sortedData = this.isSortLocally ? this.sortOnClient(id, newOrder) : this.sortOnServer(id, newOrder, this.start, this.length);
 
       const arrow = column.querySelector('.sortable-table__sort-arrow');
 
@@ -40,6 +40,8 @@ export default class SortableTable {
   constructor(headerConfig, {
     data = [],
     url = '',
+    start = 0,
+    length = 30,
     isSortLocally = false,
     sorted = {
       id: headerConfig.find(item => item.sortable).id,
@@ -51,6 +53,8 @@ export default class SortableTable {
     this.url = url;
     this.isSortLocally = isSortLocally;
     this.sorted = sorted;
+    this.start = start;
+    this.length = length;
 
     this.loadData()
     this.render();
@@ -71,6 +75,7 @@ export default class SortableTable {
 
   initEventListeners = () => {
     this.subElements.header.addEventListener('pointerdown', this.onSortClick);
+    window.addEventListener('scroll', this.onScrollLoad)
   }
 
   getTemplate (data) {
@@ -157,16 +162,24 @@ export default class SortableTable {
     return sortData
   }
 
-  sortOnServer = async (id, order) => {
+  sortOnServer = async (id, order, start, length) => {
     let url = new URL(this.url, BACKEND_URL);
     url.searchParams.set('_embed', 'subcategory.category');
     url.searchParams.set('_sort', id);
     url.searchParams.set('_order', order);
-    url.searchParams.set('_start', 0);
-    url.searchParams.set('_end', 30);
+    url.searchParams.set('_start', start);
+    url.searchParams.set('_end', length);
     const newDate = await fetchJson(url)
     this.data = await newDate;
     return this.data
+  }
+
+  onScrollLoad = (e) => {
+    let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
+    if (windowRelativeBottom < document.documentElement.clientHeight + 100) {
+      this.length += 30;
+      this.loadData()
+    }
   }
 
 
@@ -182,9 +195,9 @@ export default class SortableTable {
     return result;
   }
 
-  async loadData () {
+  loadData = async () => {
     const { id, order } = this.sorted;
-    await this.sortOnServer(id, order)
+    await this.sortOnServer(id, order, this.start, this.length)
     this.subElements.body.innerHTML = this.getBody(this.data)
   }
 
