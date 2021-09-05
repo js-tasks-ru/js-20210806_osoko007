@@ -55,27 +55,26 @@ export default class SortableTable {
     this.sorted = sorted;
     this.start = start;
     this.length = length;
+    this.step = 20;
     this.isLoaded = false;
 
     this.render();
   }
 
   async render () { 
-    // const { id, order } = this.sorted;
     const wrapper  = document.createElement('div');
-    // const sortedData = this.sortOnClient(id, order)
-    wrapper.innerHTML = this.getTemplate(this.data)
+    wrapper.innerHTML = this.getTemplate(this.data);
     const element = wrapper.firstElementChild;
 
     this.element = element;
     this.subElements = this.getSubElements(element);
-    await this.loadData()
+    await this.loadData();
     this.initEventListeners();
   }
 
   initEventListeners = () => { 
     this.subElements.header.addEventListener('pointerdown', this.onSortClick);
-    window.addEventListener('scroll', this.onScrollLoad)
+    window.addEventListener('scroll', this.onScrollLoad);
   }
 
   getTemplate (data) {
@@ -169,8 +168,8 @@ export default class SortableTable {
     url.searchParams.set('_order', order);
     url.searchParams.set('_start', start);
     url.searchParams.set('_end', length);
-    const newDate = await fetchJson(url)
-    return newDate
+    const newDate = await fetchJson(url);
+    return newDate;
   }
 
   onScrollLoad = async (e) => {
@@ -180,9 +179,9 @@ export default class SortableTable {
 
       this.isLoaded = true;
       this.start = this.length;
-      this.length = this.start + 20;
+      this.length = this.start + this.step;
 
-      await this.loadData()
+      await this.loadData();
       
       this.isLoaded = false;
     }
