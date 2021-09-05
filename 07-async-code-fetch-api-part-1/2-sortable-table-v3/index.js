@@ -41,7 +41,7 @@ export default class SortableTable {
     data = [],
     url = '',
     start = 0,
-    length = 30,
+    length = 20,
     isSortLocally = false,
     sorted = {
       id: headerConfig.find(item => item.sortable).id,
@@ -55,8 +55,8 @@ export default class SortableTable {
     this.sorted = sorted;
     this.start = start;
     this.length = length;
+    this.isLoaded = false;
 
-    this.loadData()
     this.render();
   }
 
@@ -69,11 +69,11 @@ export default class SortableTable {
 
     this.element = element;
     this.subElements = this.getSubElements(element);
-
+    await this.loadData()
     this.initEventListeners();
   }
 
-  initEventListeners = () => {
+  initEventListeners = () => { 
     this.subElements.header.addEventListener('pointerdown', this.onSortClick);
     window.addEventListener('scroll', this.onScrollLoad)
   }
@@ -170,16 +170,23 @@ export default class SortableTable {
     url.searchParams.set('_start', start);
     url.searchParams.set('_end', length);
     const newDate = await fetchJson(url)
-    this.data = await newDate;
-    return this.data
+    return newDate
   }
 
-  onScrollLoad = (e) => {
+  onScrollLoad = async (e) => {
     let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
-    if (windowRelativeBottom < document.documentElement.clientHeight + 100) {
-      this.length += 30;
-      this.loadData()
+
+    if (windowRelativeBottom < document.documentElement.clientHeight + 150 && !this.isLoaded) {
+
+      this.isLoaded = true;
+      this.start = this.length;
+      this.length = this.start + 20;
+
+      await this.loadData()
+      
+      this.isLoaded = false;
     }
+
   }
 
 
@@ -197,7 +204,8 @@ export default class SortableTable {
 
   loadData = async () => {
     const { id, order } = this.sorted;
-    await this.sortOnServer(id, order, this.start, this.length)
+    const newData = await this.sortOnServer(id, order, this.start, this.length)
+    this.data = [...this.data, ...newData];
     this.subElements.body.innerHTML = this.getBody(this.data)
   }
 
@@ -210,7 +218,6 @@ export default class SortableTable {
   destroy () { 
     this.remove();
     this.subElements = {};
-  }
-
-  
+    window.removeEventListener('scroll', this.onScrollLoad)
+  }  
 }
