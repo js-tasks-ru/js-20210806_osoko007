@@ -96,7 +96,6 @@ export default class SortableTable {
   
   
   getSubElements (element) {
-    console.log(element)
     const result = {}
     const elements = element.querySelectorAll('[data-element]')
     
