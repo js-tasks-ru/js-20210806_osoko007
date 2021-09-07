@@ -7,7 +7,8 @@ export default class RangePicker {
       } = {}) {
         this.from = from;
         this.to = to
-    
+        this.prevMouth = 1,
+        this.nextMouth = 1,
         this.render();
       }
     
@@ -24,6 +25,7 @@ export default class RangePicker {
 
     initEventListeners = () => { 
         this.subElements.input.addEventListener('pointerdown', this.openRangePicker);
+
         // window.addEventListener('scroll', this.onScrollLoad);
     }
 
@@ -73,7 +75,7 @@ export default class RangePicker {
                     <div>Вс</div>
                 </div>
                 <div class="rangepicker__date-grid">
-                    ${this.getMounthDays(9,2021)}
+                    ${this.getMounthDays(this.from)}
                 </div>
             </div>
         `
@@ -95,13 +97,15 @@ export default class RangePicker {
                     <div>Вс</div>
                 </div>
                 <div class="rangepicker__date-grid">
-                    ${this.getMounthDays(10,2021)}
+                    ${this.getMounthDays(this.to)}
                 </div>
             </div>
         `
     }
 
-    getMounthDays (month, year) {
+    getMounthDays (date) {
+        const month = date.getMonth()
+        const year = date.getFullYear()
         function getDaysInMonth(month, year) {
         const date = new Date(Date.UTC(year, month, 1));
         let days = [];
