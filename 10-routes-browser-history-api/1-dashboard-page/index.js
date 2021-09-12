@@ -31,7 +31,9 @@ export default class Page {
         const to = new Date();
         const from = new Date(now.setMonth(now.getMonth()-1));
 
-        const rangePicker = new RangePicker({from, to})        
+        const rangePicker = new RangePicker({from, to})
+
+        
 
         const ordersChart = new ColumnChart({
             label : 'orders',
@@ -64,23 +66,26 @@ export default class Page {
         })
 
         const sortableTable = new SortableTable(header, {
-            url : `api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_sort=title&_order=asc&_start=0&_end=30`,
+            url : `api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_start=0&_end=30`,
             isSortLocally : true,
         })
 
         this.components = {
-            rangePicker,
+            sortableTable,
             ordersChart,
             salesChart,
             customersChart,
-            sortableTable,
+            rangePicker,
         }
     }
 
     renderComponents () {
+        console.log(this.components)
         Object.keys(this.components).forEach(component => {
             const root = this.subElements[component];
             const {element} = this.components[component];
+            console.log(root, 'root')
+            console.log(element, 'element')
             root.append(element)
         })
     }
@@ -93,9 +98,9 @@ export default class Page {
         })
     }
 
-    updateComponents = async (from,to) => {
-        const data = await fetchJson(`${BACKEND_URL}api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_sort=title&_order=asc&_start=0&_end=30`);
-
+    async updateComponents (from,to) {
+        const data = await fetchJson(`${BACKEND_URL}api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_start=0&_end=30`);
+       
         this.components.sortableTable.update(data);
         this.components.ordersChart.update(from,to);
         this.components.salesChart.update(from,to);
