@@ -31,12 +31,7 @@ export default class Page {
         const to = new Date();
         const from = new Date(now.setMonth(now.getMonth()-1));
 
-        const rangePicker = new RangePicker({from, to})
-
-        const sortableTable = new SortableTable(header, {
-            url : `api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_sort=title&_order=asc&_start=0&_end=30`,
-            isSortLocally : true,
-        })
+        const rangePicker = new RangePicker({from, to})        
 
         const ordersChart = new ColumnChart({
             label : 'orders',
@@ -68,12 +63,17 @@ export default class Page {
             url : 'api/dashboard/customers',
         })
 
+        const sortableTable = new SortableTable(header, {
+            url : `api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_sort=title&_order=asc&_start=0&_end=30`,
+            isSortLocally : true,
+        })
+
         this.components = {
-            sortableTable,
+            rangePicker,
             ordersChart,
             salesChart,
             customersChart,
-            rangePicker,
+            sortableTable,
         }
     }
 
