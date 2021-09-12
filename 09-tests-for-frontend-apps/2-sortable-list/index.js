@@ -52,9 +52,7 @@ export default class SortableList {
     render () {
         const element = this.getTemplate()
 
-
         this.element = element;
-        console.log(this.element)
         this.initEventListeners()
     }
 
