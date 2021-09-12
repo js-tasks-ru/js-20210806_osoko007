@@ -31,9 +31,7 @@ export default class Page {
         const to = new Date();
         const from = new Date(now.setMonth(now.getMonth()-1));
 
-        const rangePicker = new RangePicker({from, to})
-
-        
+        const rangePicker = new RangePicker({from, to})        
 
         const ordersChart = new ColumnChart({
             label : 'orders',
@@ -48,6 +46,7 @@ export default class Page {
         const salesChart = new ColumnChart({
             label : 'sales',
             link : "#",
+            formatHeading: data => `$${data}`,
             range : {
                 from,
                 to,
@@ -66,26 +65,25 @@ export default class Page {
         })
 
         const sortableTable = new SortableTable(header, {
-            url : `api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_start=0&_end=30`,
+            url : `api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}`,
             isSortLocally : true,
+            from : from.toISOString(),
+            to : to.toISOString(),
         })
 
         this.components = {
-            sortableTable,
+            rangePicker,
             ordersChart,
             salesChart,
             customersChart,
-            rangePicker,
+            sortableTable,
         }
     }
 
     renderComponents () {
-        console.log(this.components)
         Object.keys(this.components).forEach(component => {
             const root = this.subElements[component];
             const {element} = this.components[component];
-            console.log(root, 'root')
-            console.log(element, 'element')
             root.append(element)
         })
     }
@@ -98,10 +96,10 @@ export default class Page {
         })
     }
 
-    async updateComponents (from,to) {
-        const data = await fetchJson(`${BACKEND_URL}api/dashboard/bestsellers?from=${from.toISOString()}&to=${to.toISOString()}&_start=0&_end=30`);
-       
-        this.components.sortableTable.update(data);
+    updateComponents = async (from,to) => {
+        const data = await fetchJson(`${BACKEND_URL}api/dashboard/bestsellers?_sort=title&_order=asc&_start=1&_end=20&from=${from.toISOString()}&to=${to.toISOString()}`);
+
+        this.components.sortableTable.updateRangePicker(data, from, to);
         this.components.ordersChart.update(from,to);
         this.components.salesChart.update(from,to);
         this.components.customersChart.update(from,to);
