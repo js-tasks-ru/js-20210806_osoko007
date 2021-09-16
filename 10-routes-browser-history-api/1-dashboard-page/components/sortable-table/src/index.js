@@ -15,7 +15,7 @@ export default class SortableTable {
     const { bottom } = this.element.getBoundingClientRect();
     const { id, order } = this.sorted;
 
-    if (bottom < document.documentElement.clientHeight && !this.loading && !this.sortLocally) {
+    if (!this.stopScroll && bottom < document.documentElement.clientHeight && !this.loading && !this.sortLocally) {
       this.start = this.end;
       this.end = this.start + this.step;
 
@@ -68,7 +68,9 @@ export default class SortableTable {
     isSortLocally = false,
     step = 20,
     start = 1,
-    end = start + step
+    end = start + step,
+    from = new Date(),
+    to = new Date(),
   } = {}) {
 
     this.headersConfig = headersConfig;
@@ -78,6 +80,8 @@ export default class SortableTable {
     this.step = step;
     this.start = start;
     this.end = end;
+    this.from = from;
+    this.to = to
 
     this.render();
   }
@@ -104,6 +108,8 @@ export default class SortableTable {
     this.url.searchParams.set('_order', order);
     this.url.searchParams.set('_start', start);
     this.url.searchParams.set('_end', end);
+    this.url.searchParams.set('from', this.from);
+    this.url.searchParams.set('to', this.to);
 
     this.element.classList.add('sortable-table_loading');
 
@@ -127,6 +133,14 @@ export default class SortableTable {
     rows.innerHTML = this.getTableRows(data);
 
     this.subElements.body.append(...rows.childNodes);
+  }
+
+  updateRangePicker(data, from, to) {
+    this.stopScroll = true;
+    this.from = from.toISOString();
+    this.to = to.toISOString();
+    this.data = data;
+    this.subElements.body.innerHTML = this.getTableRows(data);
   }
 
   getTableHeader() {
